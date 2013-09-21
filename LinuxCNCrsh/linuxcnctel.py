@@ -2,6 +2,7 @@
 
 import telnetlib
 import sys
+import time
   
 class LinuxCNCTelnet:
     
@@ -22,43 +23,46 @@ class LinuxCNCTelnet:
     def enable(self):
         self.connect.write("SET ENABLE " + self.EMC_ENABLE_PW + "\r\n")
         print self.connect.read_some()
-    
+        
+    def setEcho(self, echo):
+        if echo == True:
+            self.connect.write("SET ECHO ON\r\n");
+        elif echo == False:
+            self.connect.write("SET ECHO OFF\r\n");
+            
     # True means on, False means off.
     def setEStop(self, status):
         if status == True:
             eStop = "ON"
         else:
             eStop = "OFF"
-        
         self.connect.write("SET ESTOP " + eStop + "\r\n")
-        print self.connect.read_some()
         
     def setPower(self, status):
         if status == True:
             power = "ON"
             self.setMode("MANUAL")
         else:
-            power = "OFF"
-            
+            power = "OFF"  
         self.connect.write("SET MACHINE " + power + "\r\n")
-        print self.connect.read_some()
-        
+                
     def setHome(self, axis):
         self.connect.write("SET HOME " + str(axis) + "\r\n")
-        print self.connect.read_some()
         
     def run(self):
         self.setMode("AUTO")
         self.connect.write("SET RUN \r\n")
-        print self.connect.read_some()
         
     def setMode(self, mode):
         self.connect.write("SET MODE " + mode + "\r\n")
         print self.connect.read_some()
         
     def checkJointHomed(self, axis):
-        self.connect.write("GET JOINT_HOMED " + axis + "\r\n")
-        print self.connect.read_some().split()
+        self.connect.write("GET JOINT_HOMED " + str(axis) + "\r\n")
+        print "Hi "+str(self.connect.read_some().split())
+        
+    def ready(self):
+        self.connect.read_until("JOINT_HOMED 2 YES", 10)
         
 if __name__ == '__main__':
     if len(sys.argv) == 3:
@@ -66,6 +70,10 @@ if __name__ == '__main__':
         newone.printout()
         newone.connection()
         newone.enable()
+        
+        # newone.setEcho(False)
+        
+        # Set 505
         newone.setEStop(False)
         
         newone.setPower(True)
@@ -73,7 +81,12 @@ if __name__ == '__main__':
         newone.setHome(0)
         newone.setHome(1)
         newone.setHome(2)
-       
-        # newone.run()
+        time.sleep(5)
+        newone.checkJointHomed(0);
+        newone.checkJointHomed(1);
+        newone.checkJointHomed(2);
+
+        newone.ready()
+        newone.run()
     else:
         print "Usage: Host Port"
