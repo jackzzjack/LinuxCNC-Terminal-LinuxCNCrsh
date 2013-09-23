@@ -78,14 +78,16 @@ if __name__ == '__main__':
         
         newone.setPower(True)
         
+        time.sleep(2)
         newone.setHome(0)
         newone.setHome(1)
         newone.setHome(2)
-        time.sleep(5)
+        time.sleep(2)
+        
         newone.checkJointHomed(0);
         newone.checkJointHomed(1);
         newone.checkJointHomed(2);
-
+        
         newone.ready()
         newone.run()
     else:
