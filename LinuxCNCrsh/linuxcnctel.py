@@ -63,9 +63,20 @@ class LinuxCNCTelnet:
         
     def ready(self):
         self.connect.read_until("JOINT_HOMED 2 YES", 10)
+    
+    def shutdown(self):
+        self.connect.write("SHUTDOWN")
+        
+    def quit(self):
+        self.connect.write("quit")
+        
+    def close(self):
+        self.connect.close()
         
 if __name__ == '__main__':
     if len(sys.argv) == 3:
+        time.sleep(5)
+        
         newone = LinuxCNCTelnet(sys.argv[1], sys.argv[2])
         newone.printout()
         newone.connection()
@@ -90,5 +101,9 @@ if __name__ == '__main__':
         
         newone.ready()
         newone.run()
+        
+        time.sleep(2)
+        
+        newone.close()
     else:
         print "Usage: Host Port"
